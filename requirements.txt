@@ -1,0 +1,3 @@
+cassandra-driver==1.0.0
+cql==1.4.0
+cqlsh==4.1.1

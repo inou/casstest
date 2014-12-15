@@ -1,0 +1,15 @@
+{application, casstest,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel, stdlib, erlcql, erlcql_poolboy
+                 ]},
+  {mod, { casstest_app, []}},
+  {env, [
+          {cassandra_pool_host,"localhost"},
+          {cassandra_pool_port,9042},
+          {cassandra_pool_size,50},
+          {cassandra_pool_overflow,10}]}
+ ]}.
