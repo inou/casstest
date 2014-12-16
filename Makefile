@@ -26,3 +26,6 @@ virtualevn:
 
 python_req: virtualevn
 	@. bin/activate && pip -q install -r requirements.txt
+
+console:
+	erl -pa ebin -pz deps/*/ebin
