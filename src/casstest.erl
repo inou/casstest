@@ -6,33 +6,39 @@
          create_event/0,
          update_events_set/2,
          update_events_pk/2,
-         time_updates/0,
-         time_reads/0]).
+         read_set/1,
+         read_pk/1]).
 
 
 -export([statements/0]).
 
+-spec create_user() -> uuid:uuid().
 create_user() ->
-    U1 = get_timeuuid(),
+    UserId = get_timeuuid(),
     Name = get_text(),
-    {U1, {?NEW_USER, [U1, Name]}}.
+    ok = cassclient:execute({?NEW_USER, [UserId, Name]}),
+    UserId.
 
+-spec create_event() -> {atom(), [uuid:uuid() | binary()]}.
 create_event() ->
-    U1 = get_timeuuid(),
+    EventId = get_timeuuid(),
     Description = get_text(),
-    {U1, {?NEW_EVENT, [U1, Description]}}.
+    {?NEW_EVENT, [EventId, Description]}.
 
-update_events_set(User, Event) ->
-    {?UPDATE_SET, [Event, User]}.
 
-update_events_pk(User, Event) ->
-    {?UPDATE_PK, [User, Event]}.
+update_events_set(UserId, EventId) ->
+    {?UPDATE_SET, [EventId, UserId]}.
 
-time_updates() ->
-    ok.
+update_events_pk(UserId, EventId) ->
+    {?UPDATE_PK, [UserId, EventId]}.
 
-time_reads() ->
-    ok.
+-spec read_set(uuid:uuid()) -> ok.
+read_set(UserId) ->
+    ok = cassclient:execute({?READ_SET, [UserId]}).
+
+-spec read_pk(uuid:uuid()) -> ok.
+read_pk(UserId) ->
+    ok = cassclient:execute({?READ_PK, [UserId]}).
 
 statements() ->
     [{?NEW_USER,
