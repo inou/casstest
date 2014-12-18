@@ -5,5 +5,9 @@
 -define(READ_SET, read_set).
 -define(READ_PK, read_pk).
 
--define(CASSTEST_KEYSPACE, casstest).
+-define(CASSTEST_KEYSPACE, <<"casstest">>).
 -define(CASSTEST_POOL, casstest_pool).
+
+-type user_id() :: uuid:uuid().
+-type event_id() :: uuid:uuid().
+-type update_stmt() :: {atom(), [user_id() | event_id()]}.
