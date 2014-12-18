@@ -12,33 +12,54 @@
 
 -export([statements/0]).
 
--spec create_user() -> uuid:uuid().
+-export([start/0, stop/0]).
+-export([get_env/1, get_env/2]).
+
+
+start() ->
+    reltool_util:application_start(?MODULE).
+
+stop() ->
+    reltool_util:application_stop(?MODULE).
+
+-spec get_env(atom()) -> any().
+get_env(Name) ->
+    application:get_env(casstest, Name).
+
+-spec get_env(atom(), any()) -> any().
+get_env(Name, Default) ->
+    application:get_env(casstest, Name, Default).
+
+
+-spec create_user() -> user_id().
 create_user() ->
     UserId = get_timeuuid(),
     Name = get_text(),
-    ok = cassclient:execute({?NEW_USER, [UserId, Name]}),
+    {ok, void} = cassclient:execute({?NEW_USER, [UserId, Name]}),
     UserId.
 
--spec create_event() -> {atom(), [uuid:uuid() | binary()]}.
+-spec create_event() -> event_id().
 create_event() ->
     EventId = get_timeuuid(),
     Description = get_text(),
-    {?NEW_EVENT, [EventId, Description]}.
+    {ok, void} = cassclient:execute({?NEW_EVENT, [EventId, Description]}),
+    EventId.
 
-
+-spec update_events_set(user_id(), event_id()) -> update_stmt().
 update_events_set(UserId, EventId) ->
-    {?UPDATE_SET, [EventId, UserId]}.
+    {?UPDATE_SET, [[EventId], UserId]}.
 
+-spec update_events_pk(user_id(), event_id()) -> update_stmt().
 update_events_pk(UserId, EventId) ->
     {?UPDATE_PK, [UserId, EventId]}.
 
--spec read_set(uuid:uuid()) -> ok.
+-spec read_set(uuid:uuid()) -> {ok, void}.
 read_set(UserId) ->
-    ok = cassclient:execute({?READ_SET, [UserId]}).
+    cassclient:execute({?READ_SET, [UserId]}).
 
--spec read_pk(uuid:uuid()) -> ok.
+-spec read_pk(uuid:uuid()) -> {ok, void}.
 read_pk(UserId) ->
-    ok = cassclient:execute({?READ_PK, [UserId]}).
+    cassclient:execute({?READ_PK, [UserId]}).
 
 statements() ->
     [{?NEW_USER,
@@ -62,3 +83,4 @@ get_timeuuid() ->
 
 get_text() ->
     base64:encode(crypto:rand_bytes(15)).
+

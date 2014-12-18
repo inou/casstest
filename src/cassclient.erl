@@ -2,6 +2,8 @@
 
 -behaviour(gen_server).
 
+-include("casstest.hrl").
+
 -export([start_link/0,start_link/1]).
 -export([execute/1, batch/1]).
 
@@ -25,13 +27,18 @@ start_link() ->
     start_link([]).
 
 start_link(Opts) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Opts, []).
+    gen_server:start_link(?MODULE, Opts, []).
 
 execute(Query) ->
-    gen_server:call(?MODULE, {execute, Query}).
-
+    poolboy:transaction(?CASSTEST_POOL,
+        fun(Client) ->
+            gen_server:call(Client, {execute, Query})
+        end).
 batch(Queries) ->
-    gen_server:call(?MODULE, {batch, Queries}).
+    poolboy:transaction(?CASSTEST_POOL,
+        fun(Client) ->
+            gen_server:call(Client, {batch, Queries})
+        end).
 
 
 %%%===================================================================
